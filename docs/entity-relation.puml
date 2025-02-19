@@ -1,0 +1,128 @@
+@startuml
+
+title Entity relationship
+
+package "Сервис пользователей" {
+
+  entity User {
+    **user_id: int**
+    --
+    username: varchar(50)
+    email: varchar(200)
+    password_hash: varchar(255)
+    created_at: timestamp
+  }
+  
+  entity UserProfile {
+    **profile_id: int**
+    --
+    user_id: int
+    --
+    name: varchar(50)
+    surname: varchar(50)
+    profile_picture_url: varchar(255)
+  }
+  
+  entity UserRoles {
+    --
+    user_id: int
+    role_id: int
+  }
+  
+  entity Roles {
+    **role_id: int**
+    --
+    role_name: varchar(100)
+    description: text
+  }
+  
+  User ||--o{ UserProfile : "user_id"
+  User }|--o{ UserRoles : "user_id"
+  Roles }|--o{ UserRoles : "role_id"
+
+}
+
+package "Сервис статистики" {
+
+  entity PostStats {
+      post_id: int
+      --
+      likes_count: int
+      dislikes_count: int
+      views_count: int
+      comments_count: int
+  }
+  
+  entity CommentStats {
+      comment_id: int
+      --
+      likes_count: int
+      dislikes_count: int
+      replies_count: int
+  }
+  
+  entity UserStats {
+      user_id: int
+      --
+      total_posts: int
+      total_likes_received: int
+      total_dislikes_received: int
+      total_comments_received: int
+      total_comments_written: int
+  }
+  
+}
+
+package "Сервис постов и комментариев" {
+
+  entity Post {
+    **post_id: int**
+    --
+    user_id: int
+    --
+    body: text
+    created_at: timestamp
+    last_updated_at: timestamp
+  }
+  
+  entity Comment {
+    **comment_id: int**
+    --
+    post_id: int
+    author_user_id: int
+    parent_comment_id: optional<int>
+    --
+    body: text
+    created_at: timestamp
+    updated_at: timestamp
+  }
+  
+  entity PostLike {
+    --
+    post_id: int
+    user_id: int
+    --
+    like_at: timestamp
+  }
+  
+  entity CommentLike {
+    --
+    comment_id: int
+    user_id: int
+    --
+    like_at: timestamp
+  }
+  
+  Post }|--o{ Comment : "post_id"
+  Comment }|--o{ Comment : "comment_id"
+  Post }|--o{ PostLike : "post_id"
+  Comment }|--o{ CommentLike : "comment_id"
+}
+
+User ||--o{ UserStats : "user_id"
+User }|--o{ PostLike : "user_id"
+User }|--o{ CommentLike : "user_id"
+Comment ||--o{ CommentStats : "comment_id"
+Post ||--o{ PostStats : "post_id"
+
+@enduml
