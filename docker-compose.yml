@@ -1,0 +1,15 @@
+include:
+  - path: ./user-service/docker-compose.yml
+  - path: ./api-service/docker-compose.yml
+
+services:
+  shared:
+    build:
+      context: .
+      dockerfile: shared/Dockerfile
+
+  curl:
+    image: curlimages/curl
+    tty: true
+    stdin_open: true
+    entrypoint: sh
