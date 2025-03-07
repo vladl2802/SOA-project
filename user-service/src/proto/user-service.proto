@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+import "utils.proto";
+import "user.proto";
+
+option go_package = "soa-project/user-service/proto/userservice";
+
+package user_service;
+
+service UserService {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
+
+    rpc Auth(AuthRequest) returns (AuthResponse) {}
+
+    rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {}
+
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+
+    rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {}
+}
+
+message RegisterRequest {
+    string login = 1;
+    string email = 2;
+    string hashed_password = 3;
+}
+
+message RegisterResponse {
+    utils.Id id = 1;
+}
+
+message AuthRequest {
+    string login = 1;
+    string email = 2;
+    string hashed_password = 3;
+}
+
+message AuthResponse {
+    utils.Id id = 1;
+    string jwt = 2;
+}
+
+message UpdateProfileRequest {
+    utils.Id id = 1;
+    user.Profile profile = 2;
+}
+
+message UpdateProfileResponse {
+
+}
+
+message GetUserRequest {
+    utils.Id id = 1;
+}
+
+message GetUserResponse {
+    string login = 1;
+    string email = 2;
+}
+
+message GetProfileRequest {
+    utils.Id id = 1;
+}
+
+message GetProfileResponse {
+    user.Profile profile = 1;
+}
+
+

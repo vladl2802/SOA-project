@@ -1,0 +1,25 @@
+services:
+  database:
+    hostname: users-database
+    image: postgres:16
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432
+  
+  user-service:
+    depends_on:
+      - shared
+      - database
+    hostname: user-service
+    build:
+      context: ../
+      dockerfile: user-service/Dockerfile
+      args:
+        - GRPC_PORT=9090
+    environment:
+      - GRPC_ADDR=0.0.0.0:9090
+      - DATABASE_ADDR=postgresql://postgres@users-database:5432/postgres
+    ports:
+      - "9090:$USERSERVICE_GRPC_PORT"
+
