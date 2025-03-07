@@ -313,6 +313,10 @@ func handleUpdateProfile(h *HandleContext) HandlerFunc {
 	}
 }
 
+func hashPassword(user User) [16]byte {
+	return md5.Sum([]byte(user.Password + user.Login))
+}
+
 func checkPasswordValidity(password string) error {
 	if len(password) > 72 {
 		return errors.New("too long password")
@@ -346,8 +350,4 @@ func checkPasswordValidity(password string) error {
 	}
 
 	return nil
-}
-
-func hashPassword(user User) [16]byte {
-	return md5.Sum([]byte(user.Password + user.Login))
 }
