@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "utils.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "soa-project/shared/proto";
+
+package user;
+
+message User {
+    string login = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message Profile {
+    string name = 1;
+    string surname = 2;
+    string phone_number = 3;
+    utils.Date birthday = 4;
+
+    reserved 5 to 9;
+    
+    google.protobuf.Timestamp creation_time = 10;
+    google.protobuf.Timestamp last_update_time = 11;
+}

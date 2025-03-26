@@ -1,0 +1,181 @@
+openapi: 3.0.4
+info:
+  title: Gateway API
+  version: 0.0.1
+
+servers:
+  - url: https://localhost:1000
+    description: Gateway
+
+paths:
+  /register:
+    post:
+      summary: Registers new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - email
+                - password
+              properties:
+                login:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    format: uuid
+        "400":
+          description: User provided login, email or/and password are in unexpected format
+        "409":
+          description: User provided login or/and email were already taken
+        "500":
+          description: Internal error
+  /auth:
+    post:
+      summary: Authenticate user and returns token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                login:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: password
+      responses:
+        "200":
+          description: Successful auth
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  jwt:
+                    type: string
+        "400":
+          description: User provided login and/or email are in unexpected format
+        "401":
+          description: Invalid password
+        "500":
+          description: Internal error
+  /users:
+    get:
+      summary: Get user by its id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful get
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  login:
+                    type: string
+                  email:
+                    type: string
+        "404":
+          description: No user with provided id
+        "500":
+          description: Internal error
+  /profiles:
+    get:
+      summary: Get user profiles by its id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful get
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  surname:
+                    type: string
+                  phone_number:
+                    type: string
+                  birthday:
+                    type: date
+                  creation_time:
+                    type: date-time
+                  last_update_time:
+                    type: date-time
+        "404":
+          description: No profile with provided user id
+        "500":
+          description: Internal error
+  /profiles/update:
+    post:
+      summary: Updates profile if caller have sufficient rights
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                surname:
+                  type: string
+                phone_number:
+                  type: string
+                birth_day:
+                  type: date
+                creation_time:
+                  type: date-time
+                last_update_time:
+                  type: date-time
+      responses:
+        "200":
+          description: Successful profile update
+        "404":
+          description: No profile with provided user id
+        "400":
+          description: At least one of profile parameters has unexpected format
+        "401":
+          description: Caller doesn't have rights to update users profile or is not authorized
+        "500":
+          description: Internal error        
