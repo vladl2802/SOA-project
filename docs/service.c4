@@ -1,0 +1,112 @@
+specification {
+    element person {
+        style {
+            shape person
+            color green
+        }
+    }
+    element softwareSystem
+    element container
+    element component
+}
+
+model {
+  user = person "Пользователь" "Пользователь социальной сети"
+
+  socnet = softwareSystem "Социальная сеть" {
+    apiService = container "API Service" {
+      description "Перенаправляет запросы на другие сервисы"
+    }
+
+    webapp = container "Веб-приложение" "Предоставляет UI соцсети"
+
+    userService = container "User Service" {
+      description "Хранит информацию о пользователях и отвечает за регистрацию и аунтификацию"
+      technology "Go"
+
+      component userController "User Controller" "Обрабатывает HTTP запросы"
+      component authService "Auth Service" "Управляет аутентификацией"
+      component userRepository "User Repository" "Доступ к данным пользователей"
+      component kafkaProducer "Kafka Producer" "Отправляет события пользователей"
+    }
+
+    analyticsService = container "Analytics Service" {
+      description "Сервис сбора статистики"
+      technology "Go"
+    }
+
+    postsService = container "Posts Service" {
+      description "Сервис постов и комментариев"
+      technology "Go"
+    }
+
+    postgresDb = container "PostgreSQL" {
+      description "Хранение информации пользователей"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    clickhouse = container "ClickHouse" {
+      description "Хранение статистики"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    cassandraDb = container "Cassandra" {
+      description "Хранение постов и комментариев"
+      technology "Database"
+      style {
+        shape cylinder
+      }
+    }
+
+    redis = container "Redis" {
+      description "Кэширование и хранение сессий"
+      technology "In-memory data store"
+    }
+
+    kafka = container "Kafka" {
+      description "Обмен событиями между сервисами"
+      technology "Message Broker"
+      style {
+        shape queue
+      }
+    }
+  }
+
+  user -> socnet.apiService "Использует" "HTTPS"
+  socnet.apiService -> socnet.webapp "Перенаправляет" "HTTPS"
+  socnet.apiService -> socnet.userService "Маршрутизирует" "JSON/HTTPS"
+  socnet.apiService -> socnet.postsService "Маршрутизирует" "JSON/HTTPS"
+  socnet.apiService -> socnet.analyticsService "Маршрутизирует" "JSON/HTTPS"
+
+  socnet.userService -> socnet.postgresDb "Читает/Пишет" "SQL"
+  socnet.postsService -> socnet.cassandraDb "Читает/Пишет" "CQL"
+  socnet.analyticsService -> socnet.clickhouse "Читает/Пишет" "SQL"
+  socnet.apiService -> socnet.redis "Кэширует" "Redis Protocol"
+
+  socnet.userService -> socnet.kafka "Публикует/Подписывается" "user_events"
+  socnet.postsService -> socnet.kafka "Публикует/Подписывается" "post_events"
+  socnet.analyticsService -> socnet.kafka "Подписывается" "user_events, post_events"
+
+  socnet.userService -> socnet.postsService "Взаимодействует" "gRPC"
+  socnet.userService -> socnet.analyticsService "Взаимодействует" "gRPC"
+  socnet.postsService -> socnet.analyticsService "Взаимодействует" "gRPC"
+
+  // todoList.userService.userController -> todoList.userService.authService "Использует"
+  // todoList.userService.userController -> todoList.userService.userServiceComponent "Использует"
+  // todoList.userService.authService -> todoList.userService.userServiceComponent "Использует"
+  // todoList.userService.userServiceComponent -> todoList.userService.userRepository "Использует"
+  // todoList.userService.userServiceComponent -> todoList.userService.kafkaProducer "Использует"
+  // todoList.userService.grpcService -> todoList.userService.userServiceComponent "Использует"
+}
+
+views {
+   view index {
+        include *
+    }
+}
