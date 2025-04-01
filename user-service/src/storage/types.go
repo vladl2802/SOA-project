@@ -106,7 +106,7 @@ func (tx *Tx) FindProfileByUserId(ctx context.Context, userId uuid.UUID) (*Profi
 }
 
 func (tx *Tx) UpdateProfile(ctx context.Context, profile Profile) error {
-	query := "UPDATE Profiles SET name = $1, surname = $2, phoneNumber = $3, BirthDay = $4, creationTime = $5, lastUpdateTime = $6 WHERE userId = $7"
+	query := "UPDATE Profiles SET name = $1, surname = $2, phoneNumber = $3, birthDay = $4, creationTime = $5, lastUpdateTime = $6 WHERE userId = $7"
 	_, err := tx.tx.Exec(ctx, query, profile.Name, profile.Surname, profile.PhoneNumber, profile.BirthDay, profile.CreationTime, profile.LastUpdateTime, profile.UserId)
 	return err
 }

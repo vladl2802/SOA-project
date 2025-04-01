@@ -356,16 +356,16 @@ func (s UserService) GetProfile(ctx context.Context, req *pb.GetProfileRequest) 
 func NewUserService(jwtPrivateFile string, databaseUrl string) (*UserService, error) {
 	private, err := os.ReadFile(jwtPrivateFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize UserService: failed to read jwtPrivateFile: %w", err)
+		return nil, fmt.Errorf("failed to read jwtPrivateFile: %w", err)
 	}
 	jwtPrivate, err := jwt.ParseRSAPrivateKeyFromPEM(private)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize UserService: failed to parse private key: %w", err)
+		return nil, fmt.Errorf("failed to parse private key: %w", err)
 	}
 
 	storage, err := storage.NewStorage(databaseUrl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize UserService: failed to initialize storage: %w", err)
+		return nil, fmt.Errorf("failed to initialize storage: %w", err)
 	}
 
 	return &UserService{

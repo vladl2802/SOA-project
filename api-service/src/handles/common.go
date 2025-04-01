@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	postservice "soa-project/post-service/proto"
 	shared "soa-project/shared/proto"
 	userservice "soa-project/user-service/proto"
 )
@@ -76,6 +77,7 @@ func ProfileStructToPb(p Profile) (*shared.Profile, error) {
 }
 
 type HandleContext struct {
+	PostserviceClient postservice.PostServiceClient
 	UserserviceClient userservice.UserServiceClient
 	JwtPublic         *rsa.PublicKey
 }

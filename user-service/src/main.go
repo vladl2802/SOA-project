@@ -38,7 +38,7 @@ func main() {
 
 	userService, err := NewUserService(absolutePrivateFile, databaseUrl)
 	if err != nil {
-		log.Fatalf("failed to create service: %v", err)
+		log.Fatalf("failed to initialize UserService: %v", err)
 	}
 
 	lis, err := net.Listen("tcp", grpcAddr)

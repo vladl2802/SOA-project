@@ -3,12 +3,13 @@ services:
     depends_on:
       - shared
       - user-service
+      - post-service
     hostname: api-service
     build:
       context: ../
       dockerfile: api-service/Dockerfile
     environment:
       - USERSERVICE_GRPC_ADDR=user-service:$USERSERVICE_GRPC_PORT
+      - POSTSERVICE_GRPC_ADDR=post-service:$POSTSERVICE_GRPC_PORT
     ports:
       - 8080:8080
-

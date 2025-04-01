@@ -7,8 +7,9 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
-	google.golang.org/grpc v1.71.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/grpc v1.71.1
+	google.golang.org/protobuf v1.36.6
+	soa-project/post-service v0.0.0-00010101000000-000000000000
 	soa-project/shared v0.0.0-00010101000000-000000000000
 	soa-project/user-service v0.0.0-00010101000000-000000000000
 )
@@ -45,3 +46,5 @@ require (
 replace soa-project/shared => ../../shared
 
 replace soa-project/user-service => ../../user-service/src
+
+replace soa-project/post-service => ../../post-service/src

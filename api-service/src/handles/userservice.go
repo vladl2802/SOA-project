@@ -75,7 +75,7 @@ func handleRegister(h *HandleContext) HandlerFunc {
 			return
 		}
 
-		ctx.JSON(201, map[string]any{"user_id": response.Id.String()})
+		ctx.JSON(201, map[string]any{"user_id": response.Id.Uuid})
 	}
 }
 
@@ -127,7 +127,7 @@ func handleAuth(h *HandleContext) HandlerFunc {
 			return
 		}
 
-		ctx.JSON(200, map[string]any{"user_id": response.Id.String(), "jwt": response.Jwt})
+		ctx.JSON(200, map[string]any{"user_id": response.Id.Uuid, "jwt": response.Jwt})
 	}
 }
 

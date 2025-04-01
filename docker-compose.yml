@@ -1,6 +1,7 @@
 include:
   - path: ./user-service/docker-compose.yml
   - path: ./api-service/docker-compose.yml
+  - path: ./post-service/docker-compose.yml
 
 services:
   shared:

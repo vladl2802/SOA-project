@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"soa-project/api-service/handles"
+	postservice "soa-project/post-service/proto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -17,8 +18,10 @@ import (
 func main() {
 	jwtPublicFile := os.Getenv("JWT_PUBLIC")
 	userserviceGrpcAddr := os.Getenv("USERSERVICE_GRPC_ADDR")
+	postserviceGrpcAddr := os.Getenv("POSTSERVICE_GRPC_ADDR")
 
 	log.Printf("USERSERVICE_GRPC_ADDR: %v", userserviceGrpcAddr)
+	log.Printf("POSTSERVICE_GRPC_ADDR: %v", postserviceGrpcAddr)
 
 	if jwtPublicFile == "" {
 		log.Fatalf("jwt public key file not provided")
@@ -40,6 +43,9 @@ func main() {
 	if userserviceGrpcAddr == "" {
 		log.Fatalf("userservice grpc address not provided")
 	}
+	if postserviceGrpcAddr == "" {
+		log.Fatalf("postservice grpc address not provided")
+	}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -49,13 +55,20 @@ func main() {
 		log.Fatalf("failed to create grpc connection with userservice: %v", err)
 	}
 
+	postserviceConn, err := grpc.NewClient(postserviceGrpcAddr, opts...)
+	if err != nil {
+		log.Fatalf("failed to create grpc connection with postservice: %v", err)
+	}
+
 	handleContext := handles.HandleContext{
 		UserserviceClient: userservice.NewUserServiceClient(userserviceConn),
+		PostserviceClient: postservice.NewPostServiceClient(postserviceConn),
 		JwtPublic:         jwtPublic,
 	}
 
 	engine := gin.Default()
 	handleContext.HandleUserService(engine)
+	handleContext.HandlePostService(engine)
 
 	engine.Run()
 }
