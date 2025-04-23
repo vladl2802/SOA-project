@@ -75,7 +75,24 @@ func handleRegister(h *HandleContext) HandlerFunc {
 			return
 		}
 
-		ctx.JSON(201, map[string]any{"user_id": response.Id.Uuid})
+		userId, err := uuid.Parse(response.Id.Uuid)
+		if err != nil {
+			log.Printf("/register: couldn't parse response user id")
+			ctx.Status(500)
+			return
+		}
+
+		err = h.EventsClient.OnUserRegister(c, EventUserRegister{
+			User: UserId(userId),
+			Time: time.Now(),
+		})
+		if err != nil {
+			log.Printf("/register: couldn't send user register event: %v", err)
+			ctx.Status(500)
+			return
+		}
+
+		ctx.JSON(201, map[string]any{"user_id": userId.String()})
 	}
 }
 
@@ -274,7 +291,7 @@ func handleUpdateProfile(h *HandleContext) HandlerFunc {
 
 		log.Printf("update: claims: %v", claims)
 
-		if claims.UserId != uuid {
+		if claims.UserId != UserId(uuid) {
 			ctx.JSON(401, map[string]any{"error": "/profiles/update: request issuer has no rights to perform this operation"})
 			return
 		}

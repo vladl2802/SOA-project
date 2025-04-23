@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -231,6 +232,13 @@ func handleGetPost(h *HandleContext) HandlerFunc {
 			return
 		}
 
+		postId, err := uuid.Parse(request.Id)
+		if err != nil {
+			log.Printf("/post: couldn't parse post id: %v", err)
+			ctx.Status(500)
+			return
+		}
+
 		jwtToken, err := ctx.Cookie("jwt")
 		if err != nil {
 			ctx.JSON(401, map[string]any{"error": "/post: missing jwt cookie"})
@@ -245,7 +253,7 @@ func handleGetPost(h *HandleContext) HandlerFunc {
 
 		response, err := h.PostserviceClient.GetPost(c, &postservice.GetPostRequest{
 			UserId: &shared.Id{Uuid: claims.UserId.String()},
-			Id:     &shared.Id{Uuid: request.Id},
+			Id:     &shared.Id{Uuid: postId.String()},
 		})
 		if err != nil {
 			st, ok := status.FromError(err)
@@ -266,6 +274,16 @@ func handleGetPost(h *HandleContext) HandlerFunc {
 				log.Printf("/post: non recognized status: %v (code: %v)\n", st.Err().Error(), st.Code())
 				ctx.Status(500)
 			}
+			return
+		}
+
+		err = h.EventsClient.OnPostView(c, EventPostView{
+			User: claims.UserId,
+			Post: PostId(postId),
+		})
+		if err != nil {
+			log.Printf("/post: couldn't send post view event: %v", err)
+			ctx.Status(500)
 			return
 		}
 

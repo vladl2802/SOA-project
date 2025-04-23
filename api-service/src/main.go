@@ -19,9 +19,11 @@ func main() {
 	jwtPublicFile := os.Getenv("JWT_PUBLIC")
 	userserviceGrpcAddr := os.Getenv("USERSERVICE_GRPC_ADDR")
 	postserviceGrpcAddr := os.Getenv("POSTSERVICE_GRPC_ADDR")
+	kafkaAddr := os.Getenv("KAFKA_ADDR")
 
 	log.Printf("USERSERVICE_GRPC_ADDR: %v", userserviceGrpcAddr)
 	log.Printf("POSTSERVICE_GRPC_ADDR: %v", postserviceGrpcAddr)
+	log.Printf("KAFKA_ADDR: %v", kafkaAddr)
 
 	if jwtPublicFile == "" {
 		log.Fatalf("jwt public key file not provided")
@@ -46,6 +48,9 @@ func main() {
 	if postserviceGrpcAddr == "" {
 		log.Fatalf("postservice grpc address not provided")
 	}
+	if kafkaAddr == "" {
+		log.Fatalf("kafka address not provided")
+	}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -63,12 +68,14 @@ func main() {
 	handleContext := handles.HandleContext{
 		UserserviceClient: userservice.NewUserServiceClient(userserviceConn),
 		PostserviceClient: postservice.NewPostServiceClient(postserviceConn),
+		EventsClient:      handles.NewEventsClient(kafkaAddr),
 		JwtPublic:         jwtPublic,
 	}
 
 	engine := gin.Default()
 	handleContext.HandleUserService(engine)
 	handleContext.HandlePostService(engine)
+	handleContext.HandleEvents(engine)
 
 	engine.Run()
 }
