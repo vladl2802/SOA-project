@@ -11,9 +11,14 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	postservice "soa-project/post-service/proto"
 	shared "soa-project/shared/proto"
 	userservice "soa-project/user-service/proto"
 )
+
+type UserId = uuid.UUID
+
+type PostId = uuid.UUID
 
 type User struct {
 	Login    string `json:"login"`
@@ -76,12 +81,14 @@ func ProfileStructToPb(p Profile) (*shared.Profile, error) {
 }
 
 type HandleContext struct {
+	PostserviceClient postservice.PostServiceClient
 	UserserviceClient userservice.UserServiceClient
+	EventsClient      EventsClient
 	JwtPublic         *rsa.PublicKey
 }
 
 type JwtClaims struct {
-	UserId uuid.UUID
+	UserId UserId
 }
 
 func (h *HandleContext) parseAndVerifyJwtToken(jwtToken string) (*JwtClaims, error) {
@@ -116,7 +123,7 @@ func (h *HandleContext) parseAndVerifyJwtToken(jwtToken string) (*JwtClaims, err
 		return nil, fmt.Errorf("provided jwt token expired")
 	}
 
-	return &JwtClaims{UserId: uuid}, nil
+	return &JwtClaims{UserId: UserId(uuid)}, nil
 }
 
 type HandlerFunc func(*gin.Context)

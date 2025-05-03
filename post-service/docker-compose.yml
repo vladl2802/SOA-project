@@ -1,6 +1,6 @@
 services:
-  userservice-database:
-    hostname: users-database
+  postservice-database:
+    hostname: posts-database
     image: postgres:16
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
@@ -10,18 +10,18 @@ services:
       timeout: 5s
       retries: 5
 
-  user-service:
+  post-service:
     depends_on:
       shared:
         condition: service_started
       postservice-database:
         condition: service_healthy
-    hostname: user-service
+    hostname: post-service
     build:
       context: ../
-      dockerfile: user-service/Dockerfile
+      dockerfile: post-service/Dockerfile
       args:
         - GRPC_PORT=9090
     environment:
       - GRPC_ADDR=0.0.0.0:9090
-      - DATABASE_ADDR=postgresql://postgres@users-database:5432/postgres
+      - DATABASE_ADDR=postgresql://postgres@posts-database:5432/postgres

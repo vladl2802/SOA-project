@@ -1,12 +1,14 @@
 FROM soa-project-shared:latest as shared
 
 FROM soa-project-user-service:latest as user-service
+FROM soa-project-post-service:latest as post-service
 
 FROM golang:1.23-alpine as build
 
 WORKDIR /app/api-service/src
 COPY --from=shared app/shared /app/shared
 COPY --from=user-service app/user-service/src /app/user-service/src
+COPY --from=post-service app/post-service/src /app/post-service/src
 
 COPY api-service/src /app/api-service/src
 
